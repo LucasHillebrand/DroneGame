@@ -35,7 +35,7 @@ ALU | 0x20 | UPD
 
 ## Assambler
 
-- var // private variable
+- priv // private variable
 - pub   // public variable
 
 - \[.\] = current position
