@@ -49,7 +49,7 @@ int main(int argc, char** argv){
         ushort ch = 0;
         for (ulong i=0;(short)ch!=EOF && i<GiB(1);i++){
             ch=fgetc(deb);
-            mem[i]=ch%255;
+            mem[i]=ch%256;
         }
         CPU cpu = CPU_create(mem);
         while (cpu.status){
