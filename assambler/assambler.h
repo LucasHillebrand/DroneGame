@@ -42,7 +42,7 @@ struct varval* get(byte* str, struct varfam* fam);
 void clrpriv(struct varfam* fam);
 void vardestroy(struct varfam* fam);
 
-void collectvars(FILE* file, struct varfam* fam);
+void collectvars(FILE* file, ulong* pc, struct varfam* fam);
 void resolveins(FILE* file, FILE* output, struct varfam* fam);
 
 byte resolvestatement(byte* str, struct varfam* fam);

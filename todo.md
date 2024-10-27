@@ -1,6 +1,6 @@
 - macro transpile function on assambler
-- free (set n bytes to zero) in the resulting output
-- make the assambly functions a libary
+- incf \[filename\] (assambler macro) => include a file in the resulting output file
+- (-s) argument for compiler (set pc start position)
 - (-m) argument for debugger
 - (--help) argument for assambler
 - warning, if specified variable doesn't exists

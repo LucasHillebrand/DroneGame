@@ -32,11 +32,12 @@ int main(int argc, char** argv){
 
     if (params.cf){
         struct varfam fam = createvf();
+        ulong pc=0;
         FILE* out = fopen((char*)params.output, "w");
         FILE* in = 0;
         for (ulong i=0;i<params.fc;i++){
             in=fopen((char*)params.srcfiles[i], "r");
-            collectvars(in, &fam);
+            collectvars(in, &pc,&fam);
             resolveins(in, out, &fam);
             clrpriv(&fam);
             fclose(in);
@@ -168,9 +169,8 @@ byte* nextL(FILE* file, ptable* Pstr, byte* eof){
     return string;
 }
 
-void collectvars(FILE* file, struct varfam* fam){
+void collectvars(FILE* file, ulong *pc, struct varfam* fam){
     fseek(file, 0,0);
-    ulong pc=0;
     byte temp[stdstrsize*3];
     ptable Pstr = createPtable(temp, stdstrsize*3, stdstrsize);
     byte* line = 0;
@@ -179,7 +179,7 @@ void collectvars(FILE* file, struct varfam* fam){
         line = nextL(file, &Pstr,&eof);
         ushort start=gethex(line);
         if (start != 0x100)
-            pc+=4;
+            *pc+=4;
         splitString s = split(line, (byte*)", ",&Pstr);
         byte* name = 0;
         if (strcomp(s.tempStr,(byte*)"priv")){
@@ -189,7 +189,7 @@ void collectvars(FILE* file, struct varfam* fam){
             if (!strcomp(s.tempStr,(byte*)"."))
                 newvar(fam, (char*)name, strToUlongI(s.tempStr), priv);
             if (strcomp(s.tempStr,(byte*)"."))
-                newvar(fam, (char*)name, pc, priv);
+                newvar(fam, (char*)name, *pc, priv);
             pfree(&Pstr, name);
         }
         if (strcomp(s.tempStr,(byte*)"pub")){
@@ -199,7 +199,7 @@ void collectvars(FILE* file, struct varfam* fam){
             if (!strcomp(s.tempStr,(byte*)"."))
                 newvar(fam, (char*)name, strToUlongI(s.tempStr), pub);
             if (strcomp(s.tempStr,(byte*)"."))
-                newvar(fam, (char*)name, pc, pub);
+                newvar(fam, (char*)name, *pc, pub);
             pfree(&Pstr, name);
         }
         splitDestroy(&s, &Pstr);

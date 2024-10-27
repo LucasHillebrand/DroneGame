@@ -8,5 +8,5 @@ void printany(void* bytes,byte length){
 }
 
 int main(){
-    printf("%lu\n",strToUlongI((byte*)"11"));
+    printf("%lu\n",strToUlongI((byte*)"0b11"));
 }
