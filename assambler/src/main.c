@@ -95,7 +95,7 @@ void newvar(struct varfam* self, char* name, ulong value, enum vartype type){
             self->pubcount++;
             break;
     }
-    for (ulong i=0; i < 8;i++){
+    for (ulong i=0; i < architecture;i++){
         stor[i]=value%256;
         value-=value%256;
         value/=256;

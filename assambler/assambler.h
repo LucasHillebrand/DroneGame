@@ -1,4 +1,5 @@
 #include "../strlib/string.h"
+#include "../EMU/config.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -17,7 +18,7 @@ struct parameters {
 
 struct varval { // access $[name]:[0-7]
     byte* name;
-    byte val[8];
+    byte val[architecture];
 };
 
 struct varfam{

@@ -1,5 +1,5 @@
 noop
-pub, test, 0xFF
+pub, test, 0xFC
 srb, R0, 0, $0:test
 srb, R0, 1, $1:test
 srb, R0, 2, $2:test
