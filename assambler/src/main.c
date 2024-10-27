@@ -251,27 +251,30 @@ byte resolvestatement(byte* str, struct varfam* fam){
         next(&s);
         struct varval* vv = get(s.tempStr, fam);
         splitDestroy(&s, &Pstr);
-        return vv->val[pos];
+        if (vv != 0)
+            return vv->val[pos];
+        return 0;
     }
     return strToUlongI(str);
 }
 
 void resolveins(FILE* file, FILE* output, struct varfam* fam){
     fseek(file, 0, 0);
-    byte buff[stdstrsize*16];
-    ptable Pstr = createPtable(buff, stdstrsize*16, stdstrsize);
+    byte buff[stdstrsize*2];
+    ptable Pstr = createPtable(buff, stdstrsize*2, stdstrsize);
     byte eof=0;
     while (eof == 0){
         byte* line = nextL(file, &Pstr, &eof);
         splitString sl = split(line, (byte*)", ", &Pstr);
         ushort ins = gethex(sl.tempStr);
         if (ins != 0x100){
-            fputc(ins%255, output);
+            fputc(ins%256, output);
             for (byte i=0;i<3;i++){
                 next(&sl);
                 fputc(resolvestatement(sl.tempStr, fam), output);
             }
         }
         splitDestroy(&sl, &Pstr);
+        pfree(&Pstr, line);
     }
 }

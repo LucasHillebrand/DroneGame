@@ -40,7 +40,7 @@ void CoreStep(CPU* self, byte core){
             break;
         case CPR:
             if (instruction[1]>15||instruction[1]<10)
-                for (byte i=0;i>architecture;i++)
+                for (byte i=0;i<architecture;i++)
                     self->cores[core].reg[instruction[1]][i]=self->cores[core].reg[instruction[2]][i];
             ALU_pc_incr(&(self->cores[core]));
             break;

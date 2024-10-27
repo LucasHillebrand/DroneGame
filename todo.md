@@ -1,0 +1,4 @@
+- macro transpile function on assambler
+- free (set n bytes to zero) in the resulting output
+- make the assambly functions a libary
+- (-m) argument for debugger
