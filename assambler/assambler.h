@@ -12,8 +12,12 @@ struct parameters {
     byte* srcfiles[128]; // all the source code files
     ulong fc; // file count
 
+    ulong start; // default 0
+    ulong mem;
+
     byte df; // debug flag
     byte cf; // compile flag
+    byte combF; // combine flag
 };
 
 struct varval { // access $[name]:[0-7]

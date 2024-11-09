@@ -17,6 +17,41 @@ int main(int argc, char** argv){
             params.df=1;
             i++;
         }
+        else if (strcomp((byte*)argv[i], (byte*)"-m")){
+            i++;
+            ulong memlen=strlength((byte*)argv[i]);
+            switch (argv[i][memlen-1]){
+                case 'K':
+                    params.mem=KiB(strToUlongI((byte*)argv[i]));
+                    break;
+                case 'M':
+                    params.mem=MiB(strToUlongI((byte*)argv[i]));
+                    break;
+                case 'G':
+                    params.mem=GiB(strToUlongI((byte*)argv[i]));
+                    break;
+                default:
+                    params.mem=strToUlongI((byte*)argv[i]);
+                    break;
+            }
+        }
+        else if (strcomp((byte*)argv[i], (byte*)"-s")){
+            i++;
+            params.start=strToUlongI((byte*)argv[i]);
+        }
+        else if (strcomp((byte*)argv[i], (byte*)"--help")){
+            printf("parameters:\n\
+                --help: prints this help\n\
+                -o: defines the autput file\n\
+                -s: defines the startposition so that the jmp commands work\n\
+                -d: defines the file you want to test (debug)\n\
+                --combine: combine 1 or more files to the output file (defined by -o) !!! important with this flag you won't compile anything\n\
+                \tnote that -m bytes of zero will be placed at the beginning of the output file\n\
+                -m: sets the memory size for the emulator ([number][-/K/M/G]  for bytes/KiB/MiB/GiB)\n");
+        }
+        else if (strcomp((byte*)argv[i], (byte*)"--combine")){
+            params.combF=1;
+        }
         else{
             params.srcfiles[params.fc]=(byte*)argv[i];
             params.fc++;
@@ -25,14 +60,16 @@ int main(int argc, char** argv){
 
     printf("Params:\n\
         debug file: (%s)\n\
-        output file: (%s)\n\n",params.debugfile,params.output);
+        output file: (%s)\n\
+        start position: (%lu)\n\
+        memsize: (%lu)\n\n",params.debugfile,params.output,params.start,params.mem);
     for (ulong i=0;i<params.fc;i++){
         printf("\tinput file [%lu]: %s\n",i,params.srcfiles[i]);
     }
 
-    if (params.cf){
+    if (params.cf && !params.combF){
         struct varfam fam = createvf();
-        ulong pc=0;
+        ulong pc=params.start;
         FILE* out = fopen((char*)params.output, "w");
         FILE* in = 0;
         for (ulong i=0;i<params.fc;i++){
@@ -43,9 +80,24 @@ int main(int argc, char** argv){
             fclose(in);
         }
         fclose(out);
+    } else if (params.combF){
+        FILE* out=fopen((char*)params.output, "w");
+        for (ulong i=0;i<params.mem;i++){
+            fputc(0,out);
+        }
+        for (ulong i=0; i<params.fc;i++){
+            FILE* in=fopen((char*)params.srcfiles[i], "r");
+            ushort ch=fgetc(in);
+            ulong j;
+            for (j=0;(short)ch != EOF;ch=fgetc(in),j++)
+                fputc(ch%256,out);
+            fclose(in);
+            printf("File (%s) had %lu bytes included\n",params.srcfiles[i],j);
+        }
+        fclose(out);
     }
     if (params.df){
-        byte* mem = malloc(GiB(1));
+        byte* mem = malloc(params.mem);
         FILE* deb = fopen((char*)params.debugfile, "r");
         ushort ch = 0;
         for (ulong i=0;(short)ch!=EOF && i<GiB(1);i++){
@@ -186,8 +238,10 @@ void collectvars(FILE* file, ulong *pc, struct varfam* fam){
             next(&s);
             name = stringify((char*)s.tempStr,&Pstr);
             next(&s);
-            if (!strcomp(s.tempStr,(byte*)"."))
+            if (!strcomp(s.tempStr,(byte*)".") && !strstartswith(s.tempStr, (byte*)"$"))
                 newvar(fam, (char*)name, strToUlongI(s.tempStr), priv);
+            if (!strcomp(s.tempStr,(byte*)".") && strstartswith(s.tempStr, (byte*)"$"))
+                newvar(fam, (char*)name, resolvestatement(s.tempStr,fam), priv);
             if (strcomp(s.tempStr,(byte*)"."))
                 newvar(fam, (char*)name, *pc, priv);
             pfree(&Pstr, name);
@@ -196,8 +250,10 @@ void collectvars(FILE* file, ulong *pc, struct varfam* fam){
             next(&s);
             name = stringify((char*)s.tempStr,&Pstr);
             next(&s);
-            if (!strcomp(s.tempStr,(byte*)"."))
+            if (!strcomp(s.tempStr,(byte*)".") && !strstartswith(s.tempStr, (byte*)"$"))
                 newvar(fam, (char*)name, strToUlongI(s.tempStr), pub);
+            if (!strcomp(s.tempStr,(byte*)".") && strstartswith(s.tempStr, (byte*)"$"))
+                newvar(fam, (char*)name, resolvestatement(s.tempStr,fam), pub);
             if (strcomp(s.tempStr,(byte*)"."))
                 newvar(fam, (char*)name, *pc, pub);
             pfree(&Pstr, name);
@@ -253,6 +309,7 @@ byte resolvestatement(byte* str, struct varfam* fam){
         splitDestroy(&s, &Pstr);
         if (vv != 0)
             return vv->val[pos];
+        printf("WARNING!: variable (%s) couldn't be resolved putting a zero in its place\n",str+1);
         return 0;
     }
     return strToUlongI(str);

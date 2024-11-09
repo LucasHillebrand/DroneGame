@@ -1,6 +1,7 @@
-- macro transpile function on assambler
-- incf \[filename\] (assambler macro) => include a file in the resulting output file
-- (-s) argument for compiler (set pc start position)
-- (-m) argument for debugger
-- (--help) argument for assambler
-- warning, if specified variable doesn't exists
+- static macro transpile function on assambler
+- calculation \[ ?($var +/- 5)\]
+
+- -combine parameter to combine the multible files
+- -z (n) argument to create zerofield at the beginning of the resulting file
+
+- build a real debugger
