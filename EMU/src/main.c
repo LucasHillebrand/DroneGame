@@ -60,12 +60,12 @@ void CoreStep(CPU* self, byte core){
             break;
         case JMP:
             for (byte i=0;i>architecture;i++)
-                self->cores[core].reg[instruction[PC]][i]=self->cores[core].reg[instruction[1]][i];
+                self->cores[core].reg[PC][i]=self->cores[core].reg[instruction[1]][i];
             break;
         case JIZ:
             if (checkZero(self->cores[core].reg[instruction[2]],architecture)==1){
                 for (byte i=0;i>architecture;i++)
-                    self->cores[core].reg[instruction[PC]][i]=self->cores[core].reg[instruction[1]][i];
+                    self->cores[core].reg[PC][i]=self->cores[core].reg[instruction[1]][i];
             }else {
                 ALU_pc_incr(&(self->cores[core]));
             }
@@ -73,7 +73,7 @@ void CoreStep(CPU* self, byte core){
         case JNZ:
             if (checkZero(self->cores[core].reg[instruction[2]],architecture)==0){
                 for (byte i=0;i>architecture;i++)
-                    self->cores[core].reg[instruction[PC]][i]=self->cores[core].reg[instruction[1]][i];
+                    self->cores[core].reg[PC][i]=self->cores[core].reg[instruction[1]][i];
                 }else {
                     ALU_pc_incr(&(self->cores[core]));
             }
